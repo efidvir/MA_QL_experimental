@@ -24,16 +24,15 @@ class render():
         print(data)
 
         # create discrete colormap
-        viridis = cm.get_cmap('hsv', 256)
+        viridis = cm.get_cmap('hsv', 256-2*int(256 / (number_of_agents+2)))
         newcolors = viridis(np.linspace(0, 1, 256))
-        newcolors[2*int(256 / number_of_agents) +1:, :] = viridis(np.linspace(0, 1, (256-2*int(256 / number_of_agents) - 1)))
-        newcolors[:int(256/number_of_agents)-1, :] = np.array([1, 1, 1, 1])#wasted = white
-        newcolors[int(256/number_of_agents)-1:2*int(256 / number_of_agents) - 1, :] = np.array([0, 0, 0, 1])#collision = black
+        newcolors[2*int(256 / (number_of_agents+2)) +1:, :] = viridis(np.linspace(0, 1, len(newcolors[2*int(256 / (number_of_agents+2)) +1:, :])))
+        newcolors[:int(256/(number_of_agents+2)), :] = np.array([1, 1, 1, 1])#wasted = white
+        newcolors[int(256/(number_of_agents+2)):2*int(256 / (number_of_agents+2))+1 , :] = np.array([0, 0, 0, 1])#collision = black
         #newcolors[255:256, :] = np.array([0.75, 0.75, 0.75, 1])  # last agent = grey
         cmap = ListedColormap(newcolors)
-        bounds = np.linspace( 0, number_of_agents,number_of_agents+2)
+        bounds = np.linspace( 0, number_of_agents+2,number_of_agents+3)
         norm = colors.BoundaryNorm(bounds, cmap.N)
-
         fig, ax = plt.subplots()
         ax.imshow(data, cmap=cmap, norm=norm)
 
@@ -46,9 +45,7 @@ class render():
         labels = ["wasted", "collision"]
         for i in range(number_of_agents):
             labels.append("agent {}".format(i+1))
-        print(labels)
-        print(cmap(3))
-        patches =[mpatches.Patch(color= cmap(i*int(256 / number_of_agents)),label=labels[i]) for i in range(number_of_agents+2)]
+        patches =[mpatches.Patch(color= cmap(norm(i)),label=labels[i]) for i in range(number_of_agents+2)]
         ax.legend(title = "Time slot usage", handles=patches, loc=4, prop={'size': 6},bbox_to_anchor=(1,1.2),ncol=3, fancybox=True, shadow=True)
         #ax.title('Last 1000 time steps')
 

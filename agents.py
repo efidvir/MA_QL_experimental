@@ -24,7 +24,7 @@ class Q_transmit_agent():
         current_energy, slient_time = state
 
         # Explore ?
-        if np.random.uniform(size=1) < epsilon:
+        if np.random.default_rng().uniform(size=1) < epsilon:
             action = np.random.randint(self.number_of_actions)
 
         # Exploite - Choose the current best action

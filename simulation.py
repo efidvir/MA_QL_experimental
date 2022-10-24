@@ -40,17 +40,17 @@ draw = render()
 agent_type = 'Q_Learning'
 
 #Global parameters
-number_of_iterations = 2000
+number_of_iterations = 5000
 force_policy_flag = True
-number_of_agents = 4
+number_of_agents = 5
 np.random.seed(0)
 
 #model
-MAX_SILENT_TIME = 16
-SILENT_THRESHOLD = 4
-BATTERY_SIZE = 16
-DISCHARGE = 4
-MINIMAL_CHARGE = 4
+MAX_SILENT_TIME = 20
+SILENT_THRESHOLD = 5
+BATTERY_SIZE = 20
+DISCHARGE = 5
+MINIMAL_CHARGE = 5
 CHARGE = 1
 number_of_actions = 2
 
@@ -170,12 +170,12 @@ for i in range(number_of_iterations):
         # print(current_energy, slient_time,'->',next_energy, next_silence , '~~~', current_energy*(BATTERY_SIZE-1)+slient_time, next_energy*(BATTERY_SIZE-1)+next_silence)
         T[j][current_energy * (BATTERY_SIZE) + slient_time, next_energy * (BATTERY_SIZE) + next_silence] += 1
         epsilon[j] = epsilon[j] * decay_rate
-        draw.render_Q_diffs(agent[j].Q[:, :, 0], agent[j].Q[:, :, 1], j,i,env[j].state)
+        #draw.render_Q_diffs(agent[j].Q[:, :, 0], agent[j].Q[:, :, 1], j,i,env[j].state)
     Q_tables[i] = np.array(agent[0].Q[:][:][0])
     #render_policy_visits_table(get_policy(0), agent[0].state_visits)
 
-for j in range(number_of_agents):
-    draw.render_Q_diffs_video(agent[j].Q[:, :, 0], agent[j].Q[:, :, 1], j,number_of_iterations)
+#for j in range(number_of_agents):
+#    draw.render_Q_diffs_video(agent[j].Q[:, :, 0], agent[j].Q[:, :, 1], j,number_of_iterations)
 print(Q_tables[0])
 # env.render(data)
 print(epsilon)

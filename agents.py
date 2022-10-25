@@ -5,11 +5,11 @@ import tensorflow.python.keras as keras
 from tensorflow.python.keras.layers import Layer, Dense, Softmax
 from tensorflow.python.keras.optimizer_v2 import adam
 #import tensorflow_probability as tfp
-import os, sys
+import os, sys, time
 
 
 class Q_transmit_agent():
-    def __init__(self, alpha, gamma, battery_size, max_silence_time, data_size, number_of_actions,MINIMAL_CHARGE):
+    def __init__(self, alpha, gamma, battery_size, max_silence_time, data_size, number_of_actions,MINIMAL_CHARGE,RAND):
         self.alpha = alpha
         self.gamma = gamma
         self.data_size = data_size
@@ -18,14 +18,18 @@ class Q_transmit_agent():
         self.state_visits = np.zeros(shape=(battery_size, max_silence_time))
         self.error = np.zeros(shape=(battery_size, max_silence_time, self.number_of_actions))
         self.MINIMAL_CHARGE = MINIMAL_CHARGE
+        self.seeder = RAND
 
     def choose_action(self, state, epsilon):
         # decompose state
         current_energy, slient_time = state
 
         # Explore ?
-        if np.random.default_rng().uniform(size=1) < epsilon:
+        if np.random.default_rng().uniform(size=1)[0] < epsilon:
+            np.random.seed(self.seeder[0]+int(time.time_ns()%1000000))
             action = np.random.randint(self.number_of_actions)
+
+            print('random action',np.random.uniform(size=1)[0] , epsilon)
 
         # Exploite - Choose the current best action
         else:

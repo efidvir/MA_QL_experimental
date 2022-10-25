@@ -28,7 +28,7 @@ np.set_printoptions(edgeitems=30, linewidth=100000,
     formatter=dict(float=lambda x: "%.3g" % x))
 #import ffmpeg
 #import moviepy.video.io.ImageSequenceClip
-
+np.set_printoptions(precision=4)
 from agents import Q_transmit_agent
 from agents import AC_Agent
 from env import transmit_env
@@ -40,17 +40,17 @@ draw = render()
 agent_type = 'Q_Learning'
 
 #Global parameters
-number_of_iterations = 5000
+number_of_iterations = 50000
 force_policy_flag = True
-number_of_agents = 5
+number_of_agents = 3
 np.random.seed(0)
 
 #model
-MAX_SILENT_TIME = 20
-SILENT_THRESHOLD = 5
-BATTERY_SIZE = 20
-DISCHARGE = 5
-MINIMAL_CHARGE = 5
+MAX_SILENT_TIME = 21
+SILENT_THRESHOLD = 10
+BATTERY_SIZE = 21
+DISCHARGE = 10
+MINIMAL_CHARGE = 10
 CHARGE = 1
 number_of_actions = 2
 
@@ -58,7 +58,7 @@ number_of_actions = 2
 GAMMA = 0.9
 ALPHA = 0.01
 #P_LOSS = 0
-decay_rate = 0.999
+decay_rate = 0.9999
 
 #for rendering
 DATA_SIZE = 10
@@ -82,11 +82,13 @@ state = [[] for i in range(number_of_agents)]
 actions = [[] for i in range(number_of_agents)]
 transmit_or_wait_s = [[] for i in range(number_of_agents)]
 score = [[] for i in range(number_of_agents)]
+RAND = [[np.random.randint(10000)] for i in range(number_of_agents)]
+
 for i in range(number_of_agents):
-    epsilon[i] = epsilon[i] -1/(number_of_agents+i)
+    #epsilon[i] = epsilon[i] -1/(number_of_agents+i)
     env[i] = transmit_env(BATTERY_SIZE, MAX_SILENT_TIME, (i+3), MINIMAL_CHARGE, DISCHARGE, CHARGE, DATA_SIZE, number_of_actions)
     if agent_type == 'Q_Learning':
-        agent[i] = Q_transmit_agent(ALPHA, GAMMA, BATTERY_SIZE, MAX_SILENT_TIME, DATA_SIZE, number_of_actions, MINIMAL_CHARGE)
+        agent[i] = Q_transmit_agent(ALPHA, GAMMA, BATTERY_SIZE, MAX_SILENT_TIME, DATA_SIZE, number_of_actions, MINIMAL_CHARGE,RAND[i])
         Q_tables = [[] for i in range(number_of_iterations)]
     elif agent_type == 'Actor-Critic':
         agent[i] = AC_Agent(5*i*0.0000008, GAMMA, BATTERY_SIZE, MAX_SILENT_TIME, DATA_SIZE, number_of_actions,MINIMAL_CHARGE)
@@ -143,7 +145,10 @@ for i in range(number_of_iterations):
 
     for j in range(number_of_agents):
         np.random.seed(j)
+        print('Agent ', j)
         actions[j], transmit_or_wait_s[j] = agent[j].step(env[j].state, reward, actions[j], transmit_or_wait_s[j], env[j].new_state, epsilon[j])
+        print('Agent ', j, 'action', actions[j])
+
         #print(actions[j], transmit_or_wait_s[j])
         #policies[j] = agent[j].get_policy()
         #values[j] = agent[j].get_state_value(policies[j])
@@ -175,14 +180,16 @@ for i in range(number_of_iterations):
     #render_policy_visits_table(get_policy(0), agent[0].state_visits)
 
 #for j in range(number_of_agents):
+#    print('video done')
 #    draw.render_Q_diffs_video(agent[j].Q[:, :, 0], agent[j].Q[:, :, 1], j,number_of_iterations)
-print(Q_tables[0])
+
+
 # env.render(data)
 print(epsilon)
 # plt.plot(errors)
 #video.release()
 
-print(policies)
+print('policy: ',policies)
 
 #Agent evaluation
 
@@ -249,3 +256,8 @@ for i in range(number_of_agents):
     print('\n')
 
     #draw.plot_Q_values(Q_tables,number_of_iterations)
+
+for i in range(number_of_agents):
+    print('Agent ',i,' Q table:', Q_tables[i])
+    draw.render_Q(agent[j].Q[:, :, 0], agent[j].Q[:, :, 1], j, i, env[j].state)
+    cv2.waitKey(2)

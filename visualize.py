@@ -57,7 +57,7 @@ class render():
         plt.show()
 
     def render_Q_diffs(self, Q1, Q2, agent_num,iteration,state):
-        path = 'C:/Users/EFI/PycharmProjects/MA_QL/images/'
+        path = 'C:/Users/dvire/PycharmProjects/MA_QL/images/'
         screen = pygame.display.set_mode((Q1.shape[0] * 100, Q1.shape[1] * 100))
         diff = (Q1 - Q2)
         diff_pos = diff - np.min(diff)  # shift to posetive
@@ -107,8 +107,60 @@ class render():
         #out.write(img)
         #out.release()
 
+    def render_Q(self, Q1, Q2, agent_num,iteration,state):
+        #path = 'C:/Users/dvire/PycharmProjects/MA_QL/images/'
+        screen = pygame.display.set_mode((Q1.shape[0] * 100, Q1.shape[1] * 100))
+        diff = (Q1 - Q2)
+        diff_pos = diff - np.min(diff)  # shift to posetive
+        max = np.max(diff_pos)
+        if max == 0:
+            max = 1
+        color = diff_pos / max * 255
+        current_energy, slient_time = state
+        #print('Difference Q1 - Q2 (wait - transmit)')
+        for i in range(Q1.shape[0]):
+            for j in range(Q1.shape[1]):
+                pygame.draw.rect(screen, 255 - int(color[i, j]), pygame.Rect(i * 100, j * 100, 100, 100))
+                if i == current_energy and j == slient_time:
+                    pygame.draw.rect(screen, (255,0,0), pygame.Rect(i * 100, j * 100, 100, 100))
+        pygame.display.flip()
+
+        # convert image so it can be displayed in OpenCV
+        view = pygame.surfarray.array3d(screen)
+
+        #  convert from (width, height, channel) to (height, width, channel)
+        view = view.transpose([1, 0, 2])
+
+        #  convert from rgb to bgr
+        img = cv2.cvtColor(view, cv2.COLOR_RGB2BGR)
+
+        for i in range(Q1.shape[0]):
+            for j in range(Q2.shape[1]):
+                img = cv2.putText(img, "%.2f " % diff[i, j], (i * 100 + 20, j * 100 + 20), cv2.FONT_HERSHEY_SIMPLEX,
+                                  0.5, (0, 255, 0), 1, cv2.LINE_AA)
+                img = cv2.putText(img, "E = %d" % i, (i * 100, j * 100 + 40), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
+                                  (255, 255, 255), 1, cv2.LINE_AA)
+                img = cv2.putText(img, "T = %d" % j, (i * 100, j * 100 + 60), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
+                                  (255, 255, 255), 1, cv2.LINE_AA)
+                img = cv2.putText(img, "Q1 = %.2f" % Q1[i, j], (i * 100, j * 100 + 75), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
+                                  (0, 255, 255), 1, cv2.LINE_AA)
+                img = cv2.putText(img, "Q2 = %.2f" % Q2[i, j], (i * 100, j * 100 + 90), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
+                                  (0, 255, 255), 1, cv2.LINE_AA)
+
+                # img_bgr = cv2.putText(img_bgr, "%.3f" % value[i,j], (i*100,j*100+20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1, cv2.LINE_AA)
+        # else:
+        #  img = cv2.putText(img_bgr, "Wait", (i*100,j*100+80), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 1, cv2.LINE_AA)
+        #cv2.imshow('Q DIffs agent{d}'.format(d=agent_num),img)
+        img = img[0:Q1.shape[0] * 100, 0:Q1.shape[1] * 100]
+        #path = os.path.join(path, 'agent{d}'.format(d=agent_num))
+        cv2.imshow('Q_DIffs_agent{d}_{e}.jpg'.format(d=agent_num, e = iteration), img)
+        #out = cv2.VideoWriter('Q_DIffs_agent{d}.avi'.format(d=agent_num), cv2.VideoWriter_fourcc(*'DIVX'),10,(Q1.shape[0] * 100, Q1.shape[1] * 100))
+        #out.write(img)
+        #out.release()
+
+
     def render_Q_diffs_video(self, Q1, Q2, agent_num,nummber_of_iterations):
-        path = 'C:/Users/EFI/PycharmProjects/MA_QL/images/'
+        path = 'C:/Users/dvire/PycharmProjects/MA_QL/images/'
         path = os.path.join(path, 'agent{d}'.format(d=agent_num))
         out = cv2.VideoWriter('Q_DIffs_agent{d}.avi'.format(d=agent_num), cv2.VideoWriter_fourcc(*'DIVX'), 30,(Q1.shape[0] * 100, Q1.shape[1] * 100))
         for iter in range(nummber_of_iterations):

@@ -65,23 +65,23 @@ class transmit_env(gym.Env):
         else:  # agent choose to wait and charge
             if current_energy < self.battery_size - 1:  # capp battery
                 current_energy += self.charge_rate
-            #if ack:  # someone made a sucsessful report!
-            #    silent_time = 0
-            #else:
-            #    silent_time += 1
+            if ack:  # someone made a sucsessful report!
+                silent_time = 0
+            else:
+                silent_time += 1
 
         if silent_time > self.max_silence_time - 1:  # capp time
             silent_time = self.max_silence_time - 1
 
         if channel == 0:
             occupied = 0
-            reward -= 1
+            #reward -= 1
         elif channel == 1 and action:
             occupied = 0
         else:
             occupied = 1
 
-        reward += self.get_reward(current_energy, silent_time)
+        #reward += self.get_reward(current_energy, silent_time)
 
         # compose new state
         new_state = [current_energy, silent_time]

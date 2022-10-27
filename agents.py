@@ -29,7 +29,7 @@ class Q_transmit_agent():
             np.random.seed(self.seeder[0]+int(time.time_ns()%1000000))
             action = np.random.randint(self.number_of_actions)
 
-            print('random action',np.random.uniform(size=1)[0] , epsilon)
+            #print('random action',np.random.uniform(size=1)[0] , epsilon)
 
         # Exploite - Choose the current best action
         else:
@@ -41,7 +41,7 @@ class Q_transmit_agent():
             action = 0
 
         transmit_prob = action / (self.number_of_actions - 1)
-        transmit_or_wait = np.random.choice([1, 0], p=(transmit_prob, 1 - transmit_prob))
+        transmit_or_wait = action #np.random.choice([1, 0], p=(transmit_prob, 1 - transmit_prob))
         return action, transmit_or_wait
 
     def Q_learn(self, state, reward, action, new_state):

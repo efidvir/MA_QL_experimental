@@ -40,17 +40,17 @@ draw = render()
 agent_type = 'Q_Learning'
 
 #Global parameters
-number_of_iterations = 50000
+number_of_iterations = 20000000
 force_policy_flag = True
-number_of_agents = 3
+number_of_agents = 15
 np.random.seed(0)
 
 #model
-MAX_SILENT_TIME = 21
-SILENT_THRESHOLD = 10
-BATTERY_SIZE = 21
-DISCHARGE = 10
-MINIMAL_CHARGE = 10
+MAX_SILENT_TIME = 55
+SILENT_THRESHOLD = 20
+BATTERY_SIZE = 55
+DISCHARGE = 15
+MINIMAL_CHARGE = 15
 CHARGE = 1
 number_of_actions = 2
 
@@ -58,7 +58,7 @@ number_of_actions = 2
 GAMMA = 0.9
 ALPHA = 0.01
 #P_LOSS = 0
-decay_rate = 0.9999
+decay_rate = 0.9999997
 
 #for rendering
 DATA_SIZE = 10
@@ -145,9 +145,9 @@ for i in range(number_of_iterations):
 
     for j in range(number_of_agents):
         np.random.seed(j)
-        print('Agent ', j)
+        #print('Agent ', j)
         actions[j], transmit_or_wait_s[j] = agent[j].step(env[j].state, reward, actions[j], transmit_or_wait_s[j], env[j].new_state, epsilon[j])
-        print('Agent ', j, 'action', actions[j])
+        #print('Agent ', j, 'action', actions[j])
 
         #print(actions[j], transmit_or_wait_s[j])
         #policies[j] = agent[j].get_policy()
@@ -156,12 +156,12 @@ for i in range(number_of_iterations):
         #pol_t[i, j] = agent[j].get_policy()
     # pol_t.append(policies, axis=0)
     # val_t.append(values, axis=0)
-    if sum(transmit_or_wait_s) == 0:
-        print('wasted')
-    elif sum(transmit_or_wait_s) == 1:
-        print('!!!!!!!!!!!!!!!!!!!!' , transmit_or_wait_s )
-    else:
-        print('XXXXX', transmit_or_wait_s )
+    #if sum(transmit_or_wait_s) == 0:
+    #    print('wasted')
+    #elif sum(transmit_or_wait_s) == 1:
+    #    print('!!!!!!!!!!!!!!!!!!!!' , transmit_or_wait_s )
+    #else:
+        #print('XXXXX', transmit_or_wait_s )
     if i % 100 == 0:
         print('step: ', i, '100 steps AVG mean score: ',np.mean(score[0][-100:-1]))
 
@@ -189,7 +189,7 @@ print(epsilon)
 # plt.plot(errors)
 #video.release()
 
-print('policy: ',policies)
+#print('policy: ',policies)
 
 #Agent evaluation
 
@@ -247,10 +247,11 @@ for a in range(number_of_agents):
     print('agent{d}'.format(d=a), agent_clean[a])
     plt.plot(range(len(score[a])), score[a])
     plt.show(block=False)
-    print(agent[a].state_visits)
+    #print(agent[a].state_visits)
 print('wasted', wasted)
 print(data)
 draw.last_1k_slots(data, number_of_agents)
+'''
 for i in range(number_of_agents):
     print('Agent ', i)
     print('\n')
@@ -260,4 +261,5 @@ for i in range(number_of_agents):
 for i in range(number_of_agents):
     print('Agent ',i,' Q table:', Q_tables[i])
     draw.render_Q(agent[j].Q[:, :, 0], agent[j].Q[:, :, 1], j, i, env[j].state)
-    cv2.waitKey(2)
+    cv2.waitKey(0)
+'''

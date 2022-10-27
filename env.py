@@ -45,7 +45,7 @@ class transmit_env(gym.Env):
         current_energy, silent_time = self.state
         reward = 0
         if ack:
-            reward += 1
+            reward += 0#1
         if transmit_or_wait == 1:  # agent choose to transmit and discharge
             if current_energy < self.minimal_charge:
                 raise ValueError('No charge left, can not transmit')
@@ -58,7 +58,7 @@ class transmit_env(gym.Env):
             else:  # Agent made a sucsessful report!
                   # Gateway responded!
                     silent_time = 0
-
+                    reward += 1
                 #else:
                 #    raise ValueError('Gateway not responding')
 
@@ -75,7 +75,7 @@ class transmit_env(gym.Env):
 
         if channel == 0:
             occupied = 0
-            #reward -= 1
+            reward -= 1
         elif channel == 1 and action:
             occupied = 0
         else:

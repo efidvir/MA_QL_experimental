@@ -42,14 +42,14 @@ agent_type = 'Q_Learning'
 #Global parameters
 number_of_iterations = 5000000
 force_policy_flag = True
-number_of_agents = 12
+number_of_agents = 100
 np.random.seed(0)
 
 #model
-MAX_SILENT_TIME = 24
+MAX_SILENT_TIME = 200
 SILENT_THRESHOLD = 1
-BATTERY_SIZE = 24
-DISCHARGE = 11
+BATTERY_SIZE = 200
+DISCHARGE = 99
 MINIMAL_CHARGE = 0
 CHARGE = 1
 number_of_actions = 2

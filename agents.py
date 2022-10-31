@@ -66,8 +66,8 @@ class Q_transmit_agent():
 
     def step(self, state, reward, action,transmit_or_wait, new_state, epsilon):
         self.Q_learn(state, reward, action, new_state)
-        action , transmit_or_wait = self.choose_action(new_state, epsilon)
-        return action , transmit_or_wait
+        new_action , new_transmit_or_wait = self.choose_action(new_state, epsilon)
+        return new_action , new_transmit_or_wait
 
     def get_policy(self):
         policy = np.zeros(shape=(self.Q.shape[0], self.Q.shape[1]))

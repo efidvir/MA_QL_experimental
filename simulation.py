@@ -40,17 +40,17 @@ draw = render()
 agent_type = 'Q_Learning'
 
 #Global parameters
-number_of_iterations = 5000000
+number_of_iterations = 500000
 force_policy_flag = True
-number_of_agents = 100
+number_of_agents = 6
 np.random.seed(0)
 
 #model
-MAX_SILENT_TIME = 200
+MAX_SILENT_TIME = 12
 SILENT_THRESHOLD = 1
-BATTERY_SIZE = 200
-DISCHARGE = 99
-MINIMAL_CHARGE = 0
+BATTERY_SIZE = 12
+DISCHARGE = 5
+MINIMAL_CHARGE = 5
 CHARGE = 1
 number_of_actions = 2
 
@@ -58,15 +58,15 @@ number_of_actions = 2
 GAMMA = 0.9
 ALPHA = 0.01
 #P_LOSS = 0
-decay_rate = 0.999999
+decay_rate = 0.99999
 
 #for rendering
 DATA_SIZE = 10
 
 '''run realtime experiences'''
-T = [[] for i in range(number_of_agents)]
-for i in range(number_of_agents):
-    T[i] = np.zeros(shape=(BATTERY_SIZE * MAX_SILENT_TIME, MAX_SILENT_TIME * BATTERY_SIZE))  # transition matrix
+#T = [[] for i in range(number_of_agents)]
+#for i in range(number_of_agents):
+#    T[i] = np.zeros(shape=(BATTERY_SIZE * MAX_SILENT_TIME, MAX_SILENT_TIME * BATTERY_SIZE))  # transition matrix
 policies = [[] for i in range(number_of_agents)]
 values = [[] for i in range(number_of_agents)]
 #pol_t = np.ndarray(shape=(number_of_iterations, number_of_agents, BATTERY_SIZE, MAX_SILENT_TIME))
@@ -89,7 +89,7 @@ for i in range(number_of_agents):
     env[i] = transmit_env(BATTERY_SIZE, MAX_SILENT_TIME, (i+3), MINIMAL_CHARGE, DISCHARGE, CHARGE, DATA_SIZE, number_of_actions)
     if agent_type == 'Q_Learning':
         agent[i] = Q_transmit_agent(ALPHA, GAMMA, BATTERY_SIZE, MAX_SILENT_TIME, DATA_SIZE, number_of_actions, MINIMAL_CHARGE,RAND[i])
-        Q_tables = [[] for i in range(number_of_iterations)]
+        #Q_tables = [[] for i in range(number_of_iterations)]
     elif agent_type == 'Actor-Critic':
         agent[i] = AC_Agent(5*i*0.0000008, GAMMA, BATTERY_SIZE, MAX_SILENT_TIME, DATA_SIZE, number_of_actions,MINIMAL_CHARGE)
         print('Make sure to adjust the learning rate')
@@ -163,7 +163,7 @@ for i in range(number_of_iterations):
     #else:
         #print('XXXXX', transmit_or_wait_s )
     if i % 100 == 0:
-        print('step: ', i, '100 steps AVG mean score: ',np.mean(score[0][-100:-1]))
+        print('step: ', i, '100 steps AVG mean score: ',np.mean(score[0][-100:-1]),epsilon[0])
 
     # collect state transitions in T
     for j in range(number_of_agents):
@@ -173,10 +173,10 @@ for i in range(number_of_iterations):
         # decompose new state
         next_energy, next_silence = env[j].new_state
         # print(current_energy, slient_time,'->',next_energy, next_silence , '~~~', current_energy*(BATTERY_SIZE-1)+slient_time, next_energy*(BATTERY_SIZE-1)+next_silence)
-        T[j][current_energy * (BATTERY_SIZE) + slient_time, next_energy * (BATTERY_SIZE) + next_silence] += 1
+        #T[j][current_energy * (BATTERY_SIZE) + slient_time, next_energy * (BATTERY_SIZE) + next_silence] += 1
         epsilon[j] = epsilon[j] * decay_rate
         #draw.render_Q_diffs(agent[j].Q[:, :, 0], agent[j].Q[:, :, 1], j,i,env[j].state)
-    Q_tables[i] = np.array(agent[0].Q[:][:][0])
+    #Q_tables[i] = np.array(agent[0].Q[:][:][0])
     #render_policy_visits_table(get_policy(0), agent[0].state_visits)
 
 #for j in range(number_of_agents):
@@ -257,9 +257,8 @@ for i in range(number_of_agents):
     print('\n')
 
     #draw.plot_Q_values(Q_tables,number_of_iterations)
-
+'''
 for i in range(number_of_agents):
-    print('Agent ',i,' Q table:', Q_tables[i])
+    print('Agent ',i,' Q table:', agent[i].Q[:, :, :])
     draw.render_Q(agent[j].Q[:, :, 0], agent[j].Q[:, :, 1], j, i, env[j].state)
     cv2.waitKey(0)
-'''

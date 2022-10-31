@@ -75,7 +75,7 @@ class transmit_env(gym.Env):
 
         if channel == 0:
             occupied = 0
-            reward -= 1
+            #reward -= 1
         elif channel == 1 and action:
             occupied = 0
         else:

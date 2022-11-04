@@ -24,7 +24,7 @@ class render():
         print(data)
 
         # create discrete colormap
-        viridis = cm.get_cmap('hsv', 256-2*int(256 / (number_of_agents+2)))
+        viridis = cm.get_cmap('gist_rainbow', 256-2*int(256 / (number_of_agents+2)))
         newcolors = viridis(np.linspace(0, 1, 256))
         newcolors[2*int(256 / (number_of_agents+2)) +1:, :] = viridis(np.linspace(0, 1, len(newcolors[2*int(256 / (number_of_agents+2)) +1:, :])))
         newcolors[:int(256/(number_of_agents+2)), :] = np.array([1, 1, 1, 1])#wasted = white
@@ -56,7 +56,7 @@ class render():
             plt.plot(range(number_of_iterations), tables_array[i,])
         plt.show()
 
-    def render_Q_diffs(self, Q1, Q2, agent_num,iteration,state):
+    def render_Q_diffs(self, Q1, Q2, agent_num,iteration,state, action, reward, next_state):
         path = 'C:/Users/dvire/PycharmProjects/MA_QL/images/'
         screen = pygame.display.set_mode((Q1.shape[0] * 100, Q1.shape[1] * 100))
         diff = (Q1 - Q2)
@@ -66,12 +66,19 @@ class render():
             max = 1
         color = diff_pos / max * 255
         current_energy, slient_time = state
+        next_energy, next_slient_time = next_state
         #print('Difference Q1 - Q2 (wait - transmit)')
         for i in range(Q1.shape[0]):
             for j in range(Q1.shape[1]):
                 pygame.draw.rect(screen, 255 - int(color[i, j]), pygame.Rect(i * 100, j * 100, 100, 100))
                 if i == current_energy and j == slient_time:
                     pygame.draw.rect(screen, (255,0,0), pygame.Rect(i * 100, j * 100, 100, 100))
+                    #arrow start point
+                    start_point = ((i+1) * 100 -50, (j+1) * 100 -50)
+                if i == next_energy and j == next_slient_time:
+                    pygame.draw.rect(screen, (255, 128, 0), pygame.Rect(i * 100, j * 100, 100, 100))
+                    #arrow end coordinate
+                    end_point = ((i+1) * 100 -50, (j+1) * 100 -50)
         pygame.display.flip()
 
         # convert image so it can be displayed in OpenCV
@@ -91,10 +98,16 @@ class render():
                                   (255, 255, 255), 1, cv2.LINE_AA)
                 img = cv2.putText(img, "T = %d" % j, (i * 100, j * 100 + 60), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
                                   (255, 255, 255), 1, cv2.LINE_AA)
-                img = cv2.putText(img, "Q1 = %.2f" % Q1[i, j], (i * 100, j * 100 + 75), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
+                img = cv2.putText(img, "Q1 = %.3f" % Q1[i, j], (i * 100, j * 100 + 75), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
                                   (0, 255, 255), 1, cv2.LINE_AA)
-                img = cv2.putText(img, "Q2 = %.2f" % Q2[i, j], (i * 100, j * 100 + 90), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
+                img = cv2.putText(img, "Q2 = %.3f" % Q2[i, j], (i * 100, j * 100 + 90), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
                                   (0, 255, 255), 1, cv2.LINE_AA)
+
+        img = cv2.arrowedLine(img, start_point, end_point, (128, 255, 128), 3)
+        img = cv2.putText(img, "a=%d" % action, (int((start_point[0] +end_point[0])/2),int((start_point[1] +end_point[1])/2)) , cv2.FONT_HERSHEY_SIMPLEX, 0.5,
+                          (255, 0, 255), 2, cv2.LINE_AA)
+        img = cv2.putText(img, "r=%d" % reward, (int((start_point[0] +end_point[0])/2),int((start_point[1] +end_point[1])/2)+20) , cv2.FONT_HERSHEY_SIMPLEX, 0.5,
+                          (255, 128, 255), 2, cv2.LINE_AA)
 
                 # img_bgr = cv2.putText(img_bgr, "%.3f" % value[i,j], (i*100,j*100+20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1, cv2.LINE_AA)
         # else:

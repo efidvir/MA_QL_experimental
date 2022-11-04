@@ -14,7 +14,7 @@ class transmit_env(gym.Env):
         self.max_silence_time = max_silence_time
         self.time_threshold = time_threshold
         self.minimal_charge = minimal_charge
-        self.discharge_rate = discharge_rate
+        self.discharge_rate =  discharge_rate#np.random.randint(3, 6)*2#discharge_rate
         self.charge_rate = charge_rate
         self.data_size = data_size
 
@@ -57,6 +57,7 @@ class transmit_env(gym.Env):
                 occupied = 1
             else:  # Agent made a sucsessful report!
                   # Gateway responded!
+                if ack:
                     silent_time = 0
                     #reward += 1
                 #else:
@@ -75,7 +76,7 @@ class transmit_env(gym.Env):
 
         if channel == 0:
             occupied = 0
-            #reward -= 1
+            reward -= 1
         elif channel == 1 and action:
             occupied = 0
         else:

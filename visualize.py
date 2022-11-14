@@ -8,7 +8,7 @@ import pygame
 import cv2
 import glob
 import os
-
+plt.rcParams["figure.dpi"] = 300
 from itertools import cycle
 viridis = cm.get_cmap('viridis', 8)
 
@@ -37,18 +37,21 @@ class render():
         ax.imshow(data, cmap=cmap, norm=norm)
 
         # draw gridlines
-        ax.grid(which='major', axis='both', linestyle='-', color='k', linewidth=0.5)
-        ax.set_xticks(np.arange(0.5, 100.5, 1));
-        ax.set_yticks(np.arange(0.5, 10.5, 1));
-        ax.axes.get_xaxis().set_visible(False)
-        ax.axes.get_yaxis().set_visible(False)
-        labels = ["wasted", "collision"]
+        ax.grid(which='major', axis='both', linestyle='-', color='k', linewidth=0.01)
+        ax.set_xticks(np.arange(1, 100, 1));
+        ax.set_yticks(np.arange(1, 10, 1));
+        ax.axes.get_xaxis().set_visible(True)
+        ax.axes.get_yaxis().set_visible(True)
+        ax.xaxis.set_major_locator(plt.MaxNLocator(10))
+        ax.yaxis.set_major_locator(plt.MaxNLocator(3))
+        plt.grid(None)
+        labels = ["Wasted", "Collision"]
         for i in range(number_of_agents):
-            labels.append("agent {}".format(i+1))
+            labels.append("Agent {}".format(i+1))
         patches =[mpatches.Patch(color= cmap(norm(i)),label=labels[i]) for i in range(number_of_agents+2)]
         ax.legend(title = "Time slot usage", handles=patches, loc=4, prop={'size': 6},bbox_to_anchor=(1,1.2),ncol=3, fancybox=True, shadow=True)
         #ax.title('Last 1000 time steps')
-
+        plt.savefig('1000.pdf', dpi=1000)
         plt.show()
 
     def plot_Q_values(self, tables_array, number_of_iterations):

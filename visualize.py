@@ -31,7 +31,7 @@ class render():
         newcolors[int(256/(number_of_agents+2)):2*int(256 / (number_of_agents+2))+1 , :] = np.array([0, 0, 0, 1])#collision = black
         #newcolors[255:256, :] = np.array([0.75, 0.75, 0.75, 1])  # last agent = grey
         cmap = ListedColormap(newcolors)
-        bounds = np.linspace( 0, number_of_agents+2,number_of_agents+3)
+        bounds = np.linspace( -0.1, number_of_agents+2,number_of_agents+3)
         norm = colors.BoundaryNorm(bounds, cmap.N)
         fig, ax = plt.subplots()
         ax.imshow(data, cmap=cmap, norm=norm)
@@ -79,6 +79,7 @@ class render():
                     #arrow start point
                     start_point = ((i+1) * 100 -50, (j+1) * 100 -50)
                 if i == next_energy and j == next_slient_time:
+
                     pygame.draw.rect(screen, (255, 128, 0), pygame.Rect(i * 100, j * 100, 100, 100))
                     #arrow end coordinate
                     end_point = ((i+1) * 100 -50, (j+1) * 100 -50)

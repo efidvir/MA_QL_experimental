@@ -19,12 +19,14 @@ class transmit_env(gym.Env):
         self.data_size = data_size
 
         # reward functions
+        '''
         'self.r_1 = np.append(np.zeros(self.time_threshold-1),-1*np.ones(self.max_silence_time  - self.time_threshold))'
         self.r_1 = np.append(np.zeros(self.time_threshold - 1),
                              -1 * np.linspace(0, 2 * (self.max_silence_time - self.time_threshold),
                                               self.max_silence_time + 1 - self.time_threshold + 1))
-
-        # action space
+        '''
+        self.r_1 = np.append(np.arange(self.time_threshold+1)**2,
+                            -1 * (np.arange(self.max_silence_time - self.time_threshold-1)**0.5)-1)
         self.action_space_size = action_space_size
         self.action_space = spaces.Discrete(action_space_size)
 
@@ -44,9 +46,11 @@ class transmit_env(gym.Env):
         #######################################################
         current_energy, silent_time = self.state
         reward = 0
+
         if ack:
             reward += 1
         if transmit_or_wait == 1:  # agent choose to transmit and discharge
+
             if current_energy < self.minimal_charge:
                 raise ValueError('No charge left, can not transmit')
             else:
@@ -54,6 +58,7 @@ class transmit_env(gym.Env):
 
             if channel > 1:  # Someone else transmited along with agent - collision
                 silent_time += 1
+                #reward -= 0.5
                 occupied = 1
             else:  # Agent made a sucsessful report!
                   # Gateway responded!
@@ -66,6 +71,7 @@ class transmit_env(gym.Env):
         else:  # agent choose to wait and charge
             if current_energy < self.battery_size - 1:  # capp battery
                 current_energy += self.charge_rate
+            #silent_time += 1
             if ack:  # someone made a sucsessful report!
                 silent_time = 0
             else:
@@ -76,11 +82,14 @@ class transmit_env(gym.Env):
 
         if channel == 0:
             occupied = 0
-            reward -= 1
+            #reward -= 1
         elif channel == 1 and action:
             occupied = 0
         else:
             occupied = 1
+            #reward -= 1
+
+
 
         #reward += self.get_reward(current_energy, silent_time)
 

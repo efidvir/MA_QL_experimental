@@ -40,17 +40,17 @@ draw = render()
 agent_type = 'Q_Learning'
 
 #Global parameters
-number_of_iterations = 200000
+number_of_iterations =5000000
 force_policy_flag = True
-number_of_agents = 2
+number_of_agents = 21
 np.random.seed(0)
 
 #model
-MAX_SILENT_TIME = 6
+MAX_SILENT_TIME = 42
 SILENT_THRESHOLD = 1
-BATTERY_SIZE = 6
-DISCHARGE = 1
-MINIMAL_CHARGE = 1
+BATTERY_SIZE = 42
+DISCHARGE = 20
+MINIMAL_CHARGE = 20
 CHARGE = 1
 number_of_actions = 2
 
@@ -58,7 +58,7 @@ number_of_actions = 2
 GAMMA = 0.9
 ALPHA = 0.01
 #P_LOSS = 0
-decay_rate = 0.99999
+decay_rate = 0.999999
 
 #for rendering
 DATA_SIZE = 10
@@ -84,9 +84,10 @@ transmit_or_wait_s = [[] for i in range(number_of_agents)]
 score = [[] for i in range(number_of_agents)]
 RAND = [[np.random.randint(10000)] for i in range(number_of_agents)]
 rewards = [[] for i in range(number_of_agents)]
+avg_rwrd  = [[] for i in range(number_of_agents)]
 for i in range(number_of_agents):
-    epsilon[i] = epsilon[i] -1/(number_of_agents+i)
-    env[i] = transmit_env(BATTERY_SIZE, MAX_SILENT_TIME, (i+3), MINIMAL_CHARGE, DISCHARGE, CHARGE, DATA_SIZE, number_of_actions)
+    #epsilon[i] = epsilon[i] -1/(number_of_agents+i)
+    env[i] = transmit_env(BATTERY_SIZE, MAX_SILENT_TIME, SILENT_THRESHOLD, MINIMAL_CHARGE, DISCHARGE, CHARGE, DATA_SIZE, number_of_actions)
     if agent_type == 'Q_Learning':
         agent[i] = Q_transmit_agent(ALPHA, GAMMA, BATTERY_SIZE, MAX_SILENT_TIME, DATA_SIZE, number_of_actions, MINIMAL_CHARGE,RAND[i])
         #Q_tables = [[] for i in range(number_of_iterations)]
@@ -104,8 +105,8 @@ for i in range(number_of_agents):
 #plt.xticks(range(env[0].max_silence_time))
 #plt.title('Reward function $r_1$')
 #plt.show(block=False)
-print(epsilon)
-print('r_1 array: ', env[0].r_1)
+#print(epsilon)
+#print('r_1 array: ', env[0].r_1)
 
 errors = [[] for i in range(number_of_agents)]
 
@@ -133,14 +134,14 @@ for i in range(number_of_iterations):
         #draw.render_Q_diffs(agent[j].Q[:, :, 0], agent[j].Q[:, :, 1], j,i,env[j].state,actions[j], rewards[j], env[j].new_state)
         actions[j], transmit_or_wait_s[j] = agent[j].step(env[j].state, rewards[j], actions[j], transmit_or_wait_s[j], env[j].new_state, epsilon[j])
         epsilon[j] = epsilon[j] * decay_rate
+        #agent[j].alpha = agent[j].alpha * decay_rate
 
     if i % 100 == 0:
         print('step: ', i, '100 steps AVG mean score: ',np.mean(score[0][-100:-1]),epsilon[0])
-'''
-for j in range(number_of_agents):
-    print('video done')
-    draw.render_Q_diffs_video(agent[j].Q[:, :, 0], agent[j].Q[:, :, 1], j,number_of_iterations)
-'''
+
+#for j in range(number_of_agents):
+#    draw.render_Q_diffs_video(agent[j].Q[:, :, 0], agent[j].Q[:, :, 1], j,number_of_iterations)
+#    print('video done')
 
 print(epsilon)
 # plt.plot(errors)
@@ -182,7 +183,7 @@ for i in range(num_of_eval_iner):
     for a in range(number_of_agents):
         new_state, reward, occupied = env[a].time_step(actions[a],transmit_or_wait_s[a], sum(transmit_or_wait_s), ack)  # CHANNEL
         env[a].new_state = new_state
-        actions[a] ,transmit_or_wait_s[a] = agent[a].step(env[a].state, reward, actions[a],transmit_or_wait_s[a], env[a].new_state, epsilon[a])
+        actions[a] ,transmit_or_wait_s[a] = agent[a].choose_action(env[a].new_state,  0)#.step(env[a].state, reward, actions[a],transmit_or_wait_s[a], env[a].new_state, epsilon[a])
 
     for a in range(number_of_agents):
         # decompose state
@@ -193,8 +194,11 @@ for i in range(num_of_eval_iner):
 print('collisions', collisions)
 for a in range(number_of_agents):
     print('agent{d}'.format(d=a), agent_clean[a] , 'rate:  ', env[a].discharge_rate)
-    plt.plot(range(len(score[a])), score[a])
-    plt.show(block=False)
+    for i in range(int(len(score[a])/1000)):
+        avg_rwrd[a].append(np.mean(score[a][1000*i:1000*(i+1)]))
+    plt.plot(range(len(avg_rwrd[a])), avg_rwrd[a])
+plt.legend(range(number_of_agents))
+plt.show(block=False)
 print('wasted', wasted)
 print(data)
 draw.last_1k_slots(data, number_of_agents)

@@ -11,7 +11,7 @@ import os, sys, time
 class Q_transmit_agent():
     def __init__(self, alpha, gamma, battery_size, max_silence_time, data_size, number_of_actions,MINIMAL_CHARGE,RAND):
         self.alpha = alpha
-        self.beta = alpha/2
+        self.beta = alpha/10
         self.gamma = gamma
         self.data_size = data_size
         self.number_of_actions = number_of_actions
@@ -28,7 +28,7 @@ class Q_transmit_agent():
         # Explore ?
         if np.random.default_rng().uniform(size=1)[0] < epsilon:
             np.random.seed(self.seeder[0]+int(time.time_ns()%1000000))
-            action = np.random.default_rng().choice([0,1],1,p=[0.85,0.15])
+            action = np.random.default_rng().choice([0,1],1,p=[0.75,0.25])
             #action = np.random.randint(self.number_of_actions)
 
             #print('random action',np.random.uniform(size=1)[0] , epsilon)

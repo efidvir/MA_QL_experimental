@@ -40,25 +40,25 @@ draw = render()
 agent_type = 'Q_Learning'
 
 #Global parameters
-number_of_iterations =5000000
+number_of_iterations =2000000
 force_policy_flag = True
-number_of_agents = 21
+number_of_agents = 9
 np.random.seed(0)
 
 #model
-MAX_SILENT_TIME = 42
+MAX_SILENT_TIME = 20
 SILENT_THRESHOLD = 1
-BATTERY_SIZE = 42
-DISCHARGE = 20
-MINIMAL_CHARGE = 20
+BATTERY_SIZE = 20
+DISCHARGE = 4
+MINIMAL_CHARGE = 4
 CHARGE = 1
 number_of_actions = 2
 
 #learning params
 GAMMA = 0.9
-ALPHA = 0.01
+ALPHA = 1
 #P_LOSS = 0
-decay_rate = 0.999999
+decay_rate = 0.99999
 
 #for rendering
 DATA_SIZE = 10

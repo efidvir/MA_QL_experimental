@@ -11,7 +11,7 @@ import os, sys, time
 class Q_transmit_agent():
     def __init__(self, alpha, gamma, battery_size, max_silence_time, data_size, number_of_actions,MINIMAL_CHARGE,RAND):
         self.alpha = alpha
-        self.beta = alpha/2
+        self.beta = alpha
         self.gamma = gamma
         self.data_size = data_size
         self.number_of_actions = number_of_actions
@@ -71,6 +71,7 @@ class Q_transmit_agent():
         #self.Q[current_energy, slient_time, action] = self.Q[current_energy, slient_time, action] + self.alpha * (
         #            reward + self.gamma * (np.max(self.Q[next_energy, next_silence, :])) - self.Q[
         #        current_energy, slient_time, action])
+        #self.alpha = self.alpha*0.99999
         return
 
     def step(self, state, reward, action,transmit_or_wait, new_state, epsilon):

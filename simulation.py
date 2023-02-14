@@ -40,25 +40,25 @@ draw = render()
 agent_type = 'Q_Learning'
 
 #Global parameters
-number_of_iterations =5000000
+number_of_iterations =100000
 force_policy_flag = True
-number_of_agents = 21
+number_of_agents = 2
 np.random.seed(0)
 
 #model
-MAX_SILENT_TIME = 42
+MAX_SILENT_TIME = 4
 SILENT_THRESHOLD = 1
-BATTERY_SIZE = 42
-DISCHARGE = 20
-MINIMAL_CHARGE = 20
+BATTERY_SIZE = 4
+DISCHARGE = 1
+MINIMAL_CHARGE = 1
 CHARGE = 1
 number_of_actions = 2
 
 #learning params
 GAMMA = 0.9
-ALPHA = 0.01
+ALPHA = 0.1
 #P_LOSS = 0
-decay_rate = 0.999999
+decay_rate = 0.9999
 
 #for rendering
 DATA_SIZE = 10
@@ -182,8 +182,13 @@ for i in range(num_of_eval_iner):
         data.append(0)
     for a in range(number_of_agents):
         new_state, reward, occupied = env[a].time_step(actions[a],transmit_or_wait_s[a], sum(transmit_or_wait_s), ack)  # CHANNEL
+        rewards[a] = reward
         env[a].new_state = new_state
-        actions[a] ,transmit_or_wait_s[a] = agent[a].choose_action(env[a].new_state,  0)#.step(env[a].state, reward, actions[a],transmit_or_wait_s[a], env[a].new_state, epsilon[a])
+
+    for a in range(number_of_agents):
+        actions[a], transmit_or_wait_s[a] = agent[a].step(env[a].state, rewards[a], actions[a], transmit_or_wait_s[a],env[a].new_state, 0)
+        draw.render_Q_diffs(agent[a].Q[:, :, 0], agent[a].Q[:, :, 1], a, i, env[a].state, actions[a], rewards[a],env[a].new_state)
+        #actions[a] ,transmit_or_wait_s[a] = agent[a].choose_action(env[a].new_state,  0)#.step(env[a].state, reward, actions[a],transmit_or_wait_s[a], env[a].new_state, epsilon[a])
 
     for a in range(number_of_agents):
         # decompose state
@@ -192,6 +197,9 @@ for i in range(num_of_eval_iner):
         next_energy, next_silence = env[a].new_state
 
 print('collisions', collisions)
+for j in range(number_of_agents):
+    draw.render_Q_diffs_video(agent[j].Q[:, :, 0], agent[j].Q[:, :, 1], j,num_of_eval_iner)
+    print('video done')
 for a in range(number_of_agents):
     print('agent{d}'.format(d=a), agent_clean[a] , 'rate:  ', env[a].discharge_rate)
     for i in range(int(len(score[a])/1000)):

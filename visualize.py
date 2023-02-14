@@ -60,7 +60,7 @@ class render():
         plt.show()
 
     def render_Q_diffs(self, Q1, Q2, agent_num,iteration,state, action, reward, next_state):
-        path = 'C:/Users/dvire/PycharmProjects/MA_QL/images/'
+        path = 'C:/Users/EFI/PycharmProjects/MA_QL/images/'
         screen = pygame.display.set_mode((Q1.shape[0] * 100, Q1.shape[1] * 100))
         diff = (Q1 - Q2)
         diff_pos = diff - np.min(diff)  # shift to posetive
@@ -177,7 +177,7 @@ class render():
 
 
     def render_Q_diffs_video(self, Q1, Q2, agent_num,nummber_of_iterations):
-        path = 'C:/Users/dvire/PycharmProjects/MA_QL/images/'
+        path = 'C:/Users/EFI/PycharmProjects/MA_QL/images/'
         path = os.path.join(path, 'agent{d}'.format(d=agent_num))
         out = cv2.VideoWriter('Q_DIffs_agent{d}.avi'.format(d=agent_num), cv2.VideoWriter_fourcc(*'DIVX'), 30,(Q1.shape[0] * 100, Q1.shape[1] * 100))
         for iter in range(nummber_of_iterations):

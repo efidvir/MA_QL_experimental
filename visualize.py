@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+import matplotlib.animation as ani
 import numpy as np
 from matplotlib import colors
 from matplotlib import cm
@@ -8,7 +9,7 @@ import pygame
 import cv2
 import glob
 import os
-plt.rcParams["figure.dpi"] = 300
+plt.rcParams["figure.dpi"] = 100
 from itertools import cycle
 viridis = cm.get_cmap('viridis', 8)
 
@@ -21,7 +22,7 @@ class render():
 
     def last_1k_slots(self,data, number_of_agents):
         data = np.reshape(data, (10, 100))
-        print(data)
+        #print(data)
 
         # create discrete colormap
         viridis = cm.get_cmap('gist_rainbow', 256-2*int(256 / (number_of_agents+2)))
@@ -60,7 +61,7 @@ class render():
         plt.show()
 
     def render_Q_diffs(self, Q1, Q2, agent_num,iteration,state, action, reward, next_state):
-        path = 'C:/Users/EFI/PycharmProjects/MA_QL/images/'
+        path = 'C:/Users/dvire/PycharmProjects/MA_QL/images/'
         screen = pygame.display.set_mode((Q1.shape[0] * 100, Q1.shape[1] * 100))
         diff = (Q1 - Q2)
         diff_pos = diff - np.min(diff)  # shift to posetive
@@ -177,7 +178,7 @@ class render():
 
 
     def render_Q_diffs_video(self, Q1, Q2, agent_num,nummber_of_iterations):
-        path = 'C:/Users/EFI/PycharmProjects/MA_QL/images/'
+        path = 'C:/Users/dvire/PycharmProjects/MA_QL/images/'
         path = os.path.join(path, 'agent{d}'.format(d=agent_num))
         out = cv2.VideoWriter('Q_DIffs_agent{d}.avi'.format(d=agent_num), cv2.VideoWriter_fourcc(*'DIVX'), 30,(Q1.shape[0] * 100, Q1.shape[1] * 100))
         for iter in range(nummber_of_iterations):
@@ -186,3 +187,26 @@ class render():
             #cv2.imshow('Q DIffs agent{d}'.format(d=agent_num),img)
                 out.write(img)
         out.release()
+
+    def render_q_by_agent(self, Qs, number_of_agents):
+        plt.rc('legend', fontsize=4)
+        iterations = Qs.shape[0]
+        time_diffs = [[] for i in range(iterations)]
+        labels = []
+        lines = []
+        fig2, axess = plt.subplots(number_of_agents , 1, figsize=(12, 5))
+        for i in range(number_of_agents):
+            for e in range(Qs.shape[4]):
+                for s in range(Qs.shape[5]):
+                    for c in range(Qs.shape[6]):
+                        for j in range(iterations):
+                            time_diffs[j] = Qs[j][0][i][0][e][s][c][0] - Qs[j][0][i][0][e][s][c][1]
+                        axess[i].plot(range(iterations),time_diffs,linewidth=1)
+                        labels.append('state ({e} {s} {c})'.format(e=e, s = s, c=c))
+            axess[i].legend(labels, borderaxespad=0.)
+            print(labels)
+            labels = []
+        #animator = ani.FuncAnimation(fig, chartfunc, interval=100)
+
+#add legend
+

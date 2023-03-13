@@ -14,9 +14,11 @@ class transmit_env(gym.Env):
         self.max_silence_time = max_silence_time
         self.time_threshold = time_threshold
         self.minimal_charge = minimal_charge
-        self.discharge_rate =  discharge_rate#np.random.randint(3, 6)*2#discharge_rate
+        self.discharge_rate = discharge_rate#np.random.randint(3, 6)*2#discharge_rate
         self.charge_rate = charge_rate
         self.data_size = data_size
+        self.max_idle_time = 2
+        self.initial_idle_time = 0
 
         # reward functions
         '''
@@ -26,35 +28,39 @@ class transmit_env(gym.Env):
                                               self.max_silence_time + 1 - self.time_threshold + 1))
         '''
         self.r_1 = np.append(np.arange(self.time_threshold+1)**2,
-                            -1 * (np.arange(self.max_silence_time - self.time_threshold-1)**0.5)-1)
+                            -1 * (np.arange(self.max_silence_time - self.time_threshold-1)**0.25)-1)-1
         self.action_space_size = action_space_size
         self.action_space = spaces.Discrete(action_space_size)
 
         # state space
-        self.state_space = spaces.Tuple((spaces.Discrete(self.max_silence_time), spaces.Discrete(self.battery_size)))
+        self.state_space = spaces.Tuple((spaces.Discrete(self.max_silence_time), spaces.Discrete(self.battery_size), spaces.Discrete(self.max_idle_time)))
         self.initial_energy = self.battery_size
         self.initial_silence = 0
-        self.initial_state = [self.initial_energy - 1, self.initial_silence]
+        self.initial_state = [self.initial_energy - 1, self.initial_silence,self.initial_idle_time]
         self.state = self.initial_state
         self.new_state = self.initial_state
 
         # Screen size of data
         #self.screen = pygame.display.set_mode((data_size * 100, 100))
 
-    def time_step(self, action,transmit_or_wait, channel, ack, ):
+    def time_step(self, action,transmit_or_wait, channel, ack ):
         # take action accoring to policy (epsilon-greedy) and get reward and next state
         #######################################################
-        current_energy, silent_time = self.state
+        current_energy, silent_time, idle_time = self.state
         reward = 0
 
         if ack:
             reward += 1
-        if transmit_or_wait == 1:  # agent choose to transmit and discharge
+        #else:
+            #reward += self.get_reward(current_energy, silent_time)
 
+        if transmit_or_wait == 1:  # agent choose to transmit and discharge
+            idle_time = 0
             if current_energy < self.minimal_charge:
                 raise ValueError('No charge left, can not transmit')
             else:
                 current_energy -= self.discharge_rate
+
 
             if channel > 1:  # Someone else transmited along with agent - collision
                 silent_time += 1
@@ -71,6 +77,10 @@ class transmit_env(gym.Env):
         else:  # agent choose to wait and charge
             if current_energy < self.battery_size - 1:  # capp battery
                 current_energy += self.charge_rate
+                idle_time = 0
+            else:
+                if idle_time < self.max_idle_time -1:
+                    idle_time += 1
             #silent_time += 1
             if ack:  # someone made a sucsessful report!
                 silent_time = 0
@@ -91,10 +101,10 @@ class transmit_env(gym.Env):
 
 
 
-        #reward += self.get_reward(current_energy, silent_time)
+
 
         # compose new state
-        new_state = [current_energy, silent_time]
+        new_state = [current_energy, silent_time, idle_time]
 
         return new_state, reward, occupied
 
